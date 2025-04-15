@@ -10,12 +10,18 @@ pub struct TelemetryStore {
     data: DashMap<String, Vec<TelemetryData>>,
 }
 
-impl TelemetryStore {
-    /// Create a new telemetry store
-    pub fn new() -> Self {
+impl Default for TelemetryStore {
+    fn default() -> Self {
         Self {
             data: DashMap::new(),
         }
+    }
+}
+
+impl TelemetryStore {
+    /// Create a new telemetry store
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Add a telemetry record to the store
@@ -26,7 +32,7 @@ impl TelemetryStore {
         // Insert into the device's telemetry list, creating it if it doesn't exist
         self.data
             .entry(device_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(telemetry);
 
         Ok(id)
@@ -67,9 +73,8 @@ impl TelemetryStore {
         if let Some(mut data) = self.data.get_mut(device_id) {
             let initial_count = data.len();
             data.retain(|t| t.timestamp >= older_than);
-            let removed = initial_count - data.len();
-
-            removed
+            
+            initial_count - data.len()
         } else {
             0
         }

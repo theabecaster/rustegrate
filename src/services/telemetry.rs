@@ -26,7 +26,7 @@ impl TelemetryService {
             .store
             .add(telemetry)
             .await
-            .map_err(|e| AppError::InternalError(e))?;
+            .map_err(AppError::InternalError)?;
 
         Ok(id)
     }
