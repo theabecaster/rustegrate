@@ -41,6 +41,11 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         
+    - name: Delete existing container if it exists
+      continue-on-error: true
+      run: |
+        az container delete --resource-group rustegrate-rg --name rustegrate-container --yes
+        
     - name: Deploy to Azure Container Instances
       run: |
         az container create \
@@ -54,8 +59,7 @@ jobs:
           --registry-login-server ghcr.io \
           --registry-username ${{ github.repository_owner }} \
           --registry-password ${{ secrets.GITHUB_TOKEN }} \
-          --restart-policy OnFailure \
-          --replace
+          --restart-policy OnFailure
           
     - name: Azure logout
       run: |
