@@ -1,3 +1,3 @@
 mod in_memory;
 
-pub use in_memory::TelemetryStore; 
+pub use in_memory::TelemetryStore;

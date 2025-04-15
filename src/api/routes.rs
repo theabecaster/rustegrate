@@ -18,17 +18,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("/devices/{device_id}")
                     // GET /api/v1/devices/{device_id}/telemetry - Get telemetry for a device
-                    .route(
-                        "/telemetry",
-                        web::get().to(handlers::get_device_telemetry),
-                    )
+                    .route("/telemetry", web::get().to(handlers::get_device_telemetry))
                     // DELETE /api/v1/devices/{device_id}/telemetry - Delete old telemetry records
-                    .route(
-                        "/telemetry",
-                        web::delete().to(handlers::delete_old_records),
-                    ),
+                    .route("/telemetry", web::delete().to(handlers::delete_old_records)),
             )
             // Health check endpoint
             .route("/health", web::get().to(handlers::health_check)),
     );
-} 
+}

@@ -8,21 +8,21 @@ pub struct TelemetryData {
     /// Unique identifier for the telemetry record
     #[serde(default = "Uuid::new_v4")]
     pub id: Uuid,
-    
+
     /// Identifier of the device that sent the telemetry
     pub device_id: String,
-    
+
     /// Temperature reading from the device (in Celsius)
     pub temperature: f32,
-    
+
     /// Optional humidity reading (in percentage)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub humidity: Option<f32>,
-    
+
     /// Optional pressure reading (in hPa)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pressure: Option<f32>,
-    
+
     /// Timestamp when the telemetry was recorded
     #[serde(default = "Utc::now")]
     pub timestamp: DateTime<Utc>,
@@ -57,10 +57,10 @@ impl From<CreateTelemetryRequest> for TelemetryData {
 pub struct TelemetryQuery {
     /// Optional start time filter (inclusive)
     pub start_time: Option<DateTime<Utc>>,
-    
+
     /// Optional end time filter (inclusive)
     pub end_time: Option<DateTime<Utc>>,
-    
+
     /// Maximum number of records to return
     #[serde(default = "default_limit")]
     pub limit: usize,
@@ -68,4 +68,4 @@ pub struct TelemetryQuery {
 
 fn default_limit() -> usize {
     100
-} 
+}

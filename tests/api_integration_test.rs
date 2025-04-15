@@ -40,7 +40,7 @@ async fn test_create_telemetry() {
     // Parse response
     let body = test::read_body(resp).await;
     let response: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    
+
     // Check that the response contains an ID
     assert!(response.get("id").is_some());
 }
@@ -49,7 +49,7 @@ async fn test_create_telemetry() {
 async fn test_get_device_telemetry() {
     // Setup
     let store = TelemetryStore::new();
-    
+
     // Create a test telemetry entry
     let payload = CreateTelemetryRequest {
         device_id: "test-device-002".to_string(),
@@ -58,10 +58,10 @@ async fn test_get_device_telemetry() {
         pressure: Some(1010.0),
         timestamp: Utc::now(),
     };
-    
+
     let telemetry = rustegrate::models::TelemetryData::from(payload);
     let _ = store.add(telemetry).await.unwrap();
-    
+
     let service = TelemetryService::new(store);
     let app = test::init_service(
         App::new()
@@ -69,21 +69,21 @@ async fn test_get_device_telemetry() {
             .configure(routes::configure),
     )
     .await;
-    
+
     // Send GET request
     let req = test::TestRequest::get()
         .uri("/api/v1/devices/test-device-002/telemetry")
         .to_request();
-        
+
     // Verify response
     let resp = test::call_service(&app, req).await;
     assert!(resp.status().is_success());
-    
+
     // Parse response
     let body = test::read_body(resp).await;
     let response: Vec<serde_json::Value> = serde_json::from_slice(&body).unwrap();
-    
+
     // Verify we got at least one telemetry record
     assert!(!response.is_empty());
     assert_eq!(response[0]["device_id"], json!("test-device-002"));
-} 
+}

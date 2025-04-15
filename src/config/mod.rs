@@ -7,13 +7,13 @@ use std::env;
 pub struct AppConfig {
     /// Host address to bind the server to
     pub host: String,
-    
+
     /// Port to bind the server to
     pub port: u16,
-    
+
     /// Log level (e.g., "info", "debug", "trace")
     pub log_level: String,
-    
+
     /// Optional database URL for persistent storage
     #[allow(dead_code)] // Will be used when database features are enabled
     pub database_url: Option<String>,
@@ -24,7 +24,7 @@ impl AppConfig {
     pub fn load() -> Result<Self, config::ConfigError> {
         // Load .env file if it exists
         let _ = dotenv();
-        
+
         // Default configuration
         let default_config = Self {
             host: "127.0.0.1".to_string(),
@@ -32,7 +32,7 @@ impl AppConfig {
             log_level: "info".to_string(),
             database_url: None,
         };
-        
+
         // Load configuration from environment variables
         let host = env::var("HOST").unwrap_or(default_config.host);
         let port = env::var("PORT")
@@ -41,7 +41,7 @@ impl AppConfig {
             .unwrap_or(default_config.port);
         let log_level = env::var("LOG_LEVEL").unwrap_or(default_config.log_level);
         let database_url = env::var("DATABASE_URL").ok();
-        
+
         Ok(Self {
             host,
             port,
@@ -49,4 +49,4 @@ impl AppConfig {
             database_url,
         })
     }
-} 
+}

@@ -46,10 +46,8 @@ pub async fn create_telemetry(
     service: web::Data<TelemetryService>,
     payload: web::Json<CreateTelemetryRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let id = service
-        .create_telemetry(payload.into_inner())
-        .await?;
-        
+    let id = service.create_telemetry(payload.into_inner()).await?;
+
     let response = CreateResponse { id };
     Ok(HttpResponse::Created().json(response))
 }
@@ -60,10 +58,9 @@ pub async fn get_telemetry_by_id(
     path: web::Path<String>,
 ) -> Result<HttpResponse, AppError> {
     let id = path.into_inner();
-    let id = Uuid::parse_str(&id).map_err(|_| {
-        AppError::BadRequest("Invalid UUID format".to_string())
-    })?;
-    
+    let id = Uuid::parse_str(&id)
+        .map_err(|_| AppError::BadRequest("Invalid UUID format".to_string()))?;
+
     let telemetry = service.get_telemetry_by_id(id).await?;
     Ok(HttpResponse::Ok().json(telemetry))
 }
@@ -76,14 +73,9 @@ pub async fn get_device_telemetry(
 ) -> Result<HttpResponse, AppError> {
     let device_id = path.into_inner();
     let telemetry = service
-        .get_device_telemetry(
-            &device_id,
-            query.start_time,
-            query.end_time,
-            query.limit,
-        )
+        .get_device_telemetry(&device_id, query.start_time, query.end_time, query.limit)
         .await?;
-        
+
     Ok(HttpResponse::Ok().json(telemetry))
 }
 
@@ -97,10 +89,10 @@ pub async fn delete_old_records(
     let count = service
         .delete_old_records(&device_id, payload.older_than)
         .await?;
-        
+
     let response = DeleteResponse {
         deleted_count: count,
     };
-    
+
     Ok(HttpResponse::Ok().json(response))
-} 
+}
