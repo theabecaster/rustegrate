@@ -15,6 +15,7 @@ pub struct AppConfig {
     pub log_level: String,
     
     /// Optional database URL for persistent storage
+    #[allow(dead_code)] // Will be used when database features are enabled
     pub database_url: Option<String>,
 }
 

@@ -10,6 +10,7 @@ use tracing_actix_web::TracingLogger;
 
 use crate::api::routes;
 use crate::config::AppConfig;
+use crate::services::TelemetryService;
 use crate::storage::TelemetryStore;
 
 #[actix_web::main]
@@ -28,14 +29,17 @@ async fn main() -> std::io::Result<()> {
     
     // Initialize telemetry store
     let telemetry_store = TelemetryStore::new();
-    let store_data = web::Data::new(telemetry_store);
+    
+    // Create telemetry service
+    let telemetry_service = TelemetryService::new(telemetry_store);
+    let service_data = web::Data::new(telemetry_service);
     
     // Start HTTP server
     tracing::info!("Starting server at http://{}:{}", host, port);
     HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
-            .app_data(store_data.clone())
+            .app_data(service_data.clone())
             .app_data(web::Data::new(config.clone()))
             .configure(routes::configure)
     })

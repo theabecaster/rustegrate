@@ -2,6 +2,7 @@ use actix_web::{test, web, App};
 use chrono::Utc;
 use rustegrate::api::routes;
 use rustegrate::models::CreateTelemetryRequest;
+use rustegrate::services::TelemetryService;
 use rustegrate::storage::TelemetryStore;
 use serde_json::json;
 
@@ -9,9 +10,10 @@ use serde_json::json;
 async fn test_create_telemetry() {
     // Setup
     let store = TelemetryStore::new();
+    let service = TelemetryService::new(store);
     let app = test::init_service(
         App::new()
-            .app_data(web::Data::new(store))
+            .app_data(web::Data::new(service))
             .configure(routes::configure),
     )
     .await;
@@ -60,9 +62,10 @@ async fn test_get_device_telemetry() {
     let telemetry = rustegrate::models::TelemetryData::from(payload);
     let _ = store.add(telemetry).await.unwrap();
     
+    let service = TelemetryService::new(store);
     let app = test::init_service(
         App::new()
-            .app_data(web::Data::new(store))
+            .app_data(web::Data::new(service))
             .configure(routes::configure),
     )
     .await;

@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::errors::AppError;
-use crate::models::{CreateTelemetryRequest, TelemetryData, TelemetryQuery};
-use crate::storage::TelemetryStore;
+use crate::models::{CreateTelemetryRequest, TelemetryQuery};
+use crate::services::TelemetryService;
 
 /// Health check response
 #[derive(Serialize)]
@@ -43,14 +43,12 @@ pub async fn health_check() -> HttpResponse {
 
 /// Create a new telemetry record
 pub async fn create_telemetry(
-    store: web::Data<TelemetryStore>,
+    service: web::Data<TelemetryService>,
     payload: web::Json<CreateTelemetryRequest>,
 ) -> Result<HttpResponse, AppError> {
-    let telemetry = TelemetryData::from(payload.into_inner());
-    let id = store
-        .add(telemetry)
-        .await
-        .map_err(|e| AppError::InternalError(e))?;
+    let id = service
+        .create_telemetry(payload.into_inner())
+        .await?;
         
     let response = CreateResponse { id };
     Ok(HttpResponse::Created().json(response))
@@ -58,7 +56,7 @@ pub async fn create_telemetry(
 
 /// Get telemetry data by ID
 pub async fn get_telemetry_by_id(
-    store: web::Data<TelemetryStore>,
+    service: web::Data<TelemetryService>,
     path: web::Path<String>,
 ) -> Result<HttpResponse, AppError> {
     let id = path.into_inner();
@@ -66,43 +64,39 @@ pub async fn get_telemetry_by_id(
         AppError::BadRequest("Invalid UUID format".to_string())
     })?;
     
-    let telemetry = store
-        .get_by_id(id)
-        .await
-        .ok_or_else(|| AppError::NotFound(format!("Telemetry with ID {} not found", id)))?;
-        
+    let telemetry = service.get_telemetry_by_id(id).await?;
     Ok(HttpResponse::Ok().json(telemetry))
 }
 
 /// Get telemetry data for a specific device
 pub async fn get_device_telemetry(
-    store: web::Data<TelemetryStore>,
+    service: web::Data<TelemetryService>,
     path: web::Path<String>,
     query: web::Query<TelemetryQuery>,
 ) -> Result<HttpResponse, AppError> {
     let device_id = path.into_inner();
-    let telemetry = store
-        .get_by_device(
+    let telemetry = service
+        .get_device_telemetry(
             &device_id,
             query.start_time,
             query.end_time,
             query.limit,
         )
-        .await;
+        .await?;
         
     Ok(HttpResponse::Ok().json(telemetry))
 }
 
 /// Delete telemetry records older than a specific timestamp
 pub async fn delete_old_records(
-    store: web::Data<TelemetryStore>,
+    service: web::Data<TelemetryService>,
     path: web::Path<String>,
     payload: web::Json<DeleteOldRecordsRequest>,
 ) -> Result<HttpResponse, AppError> {
     let device_id = path.into_inner();
-    let count = store
+    let count = service
         .delete_old_records(&device_id, payload.older_than)
-        .await;
+        .await?;
         
     let response = DeleteResponse {
         deleted_count: count,

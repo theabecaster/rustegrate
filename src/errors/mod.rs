@@ -14,6 +14,7 @@ pub enum AppError {
     InternalError(String),
     
     #[error("Unauthorized: {0}")]
+    #[allow(dead_code)] // Will be used when authentication is implemented
     Unauthorized(String),
 }
 
