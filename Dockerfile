@@ -10,8 +10,11 @@ RUN apt-get update && \
 # Copy the entire project for building
 COPY . .
 
-# Build the application
+# Build the main application
 RUN cargo build --release
+
+# Build the CLI tool specifically
+RUN cargo build --release -p telemetry-cli
 
 # Create a smaller runtime image
 FROM debian:bookworm-slim
