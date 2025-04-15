@@ -72,6 +72,7 @@ jobs:
           --image ghcr.io/${{ github.repository }}:${{ github.sha }} \
           --dns-name-label rustegrate-api \
           --ports 8080 \
+          --os-type Linux \
           --protocol TCP \
           --environment-variables HOST=0.0.0.0 PORT=8080 LOG_LEVEL=info \
           --registry-login-server ghcr.io \
