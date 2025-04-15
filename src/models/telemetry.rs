@@ -29,7 +29,7 @@ pub struct TelemetryData {
 }
 
 /// Represents a request to create a new telemetry record
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CreateTelemetryRequest {
     pub device_id: String,
     pub temperature: f32,
