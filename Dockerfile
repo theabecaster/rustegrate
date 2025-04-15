@@ -2,6 +2,11 @@ FROM rust:slim as builder
 
 WORKDIR /app
 
+# Install OpenSSL and pkg-config dependencies
+RUN apt-get update && \
+    apt-get install -y pkg-config libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy manifests
 COPY Cargo.toml Cargo.lock ./
 COPY telemetry-cli/Cargo.toml ./telemetry-cli/
