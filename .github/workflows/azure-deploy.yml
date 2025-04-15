@@ -73,6 +73,8 @@ jobs:
           --dns-name-label rustegrate-api \
           --ports 8080 \
           --os-type Linux \
+          --cpu 1 \
+          --memory 1.5 \
           --protocol TCP \
           --environment-variables HOST=0.0.0.0 PORT=8080 LOG_LEVEL=info \
           --registry-login-server ghcr.io \
