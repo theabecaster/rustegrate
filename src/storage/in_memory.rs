@@ -30,10 +30,7 @@ impl TelemetryStore {
         let id = telemetry.id;
 
         // Insert into the device's telemetry list, creating it if it doesn't exist
-        self.data
-            .entry(device_id)
-            .or_default()
-            .push(telemetry);
+        self.data.entry(device_id).or_default().push(telemetry);
 
         Ok(id)
     }
@@ -73,7 +70,7 @@ impl TelemetryStore {
         if let Some(mut data) = self.data.get_mut(device_id) {
             let initial_count = data.len();
             data.retain(|t| t.timestamp >= older_than);
-            
+
             initial_count - data.len()
         } else {
             0
