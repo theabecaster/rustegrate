@@ -14,13 +14,27 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                     // GET /api/v1/telemetry/{id} - Get a specific telemetry record
                     .route("/{id}", web::get().to(handlers::get_telemetry_by_id)),
             )
-            // Device endpoints
+            // Driver endpoints
             .service(
-                web::scope("/devices/{device_id}")
-                    // GET /api/v1/devices/{device_id}/telemetry - Get telemetry for a device
-                    .route("/telemetry", web::get().to(handlers::get_device_telemetry))
-                    // DELETE /api/v1/devices/{device_id}/telemetry - Delete old telemetry records
+                web::scope("/drivers/{driver_id}")
+                    // GET /api/v1/drivers/{driver_id}/telemetry - Get telemetry for a driver
+                    .route("/telemetry", web::get().to(handlers::get_driver_telemetry))
+                    // DELETE /api/v1/drivers/{driver_id}/telemetry - Delete old telemetry records
                     .route("/telemetry", web::delete().to(handlers::delete_old_records)),
+            )
+            // Session endpoints
+            .service(
+                web::scope("/sessions")
+                    // GET /api/v1/sessions/{session_id}/telemetry - Get telemetry for a session
+                    .route("/{session_id}/telemetry", web::get().to(handlers::get_session_telemetry)),
+            )
+            // Racing metadata endpoints
+            .service(
+                web::scope("/racing")
+                    // GET /api/v1/racing/tracks - Get all available tracks
+                    .route("/tracks", web::get().to(handlers::get_tracks))
+                    // GET /api/v1/racing/cars - Get all available cars
+                    .route("/cars", web::get().to(handlers::get_cars)),
             )
             // Health check endpoint
             .route("/health", web::get().to(handlers::health_check)),

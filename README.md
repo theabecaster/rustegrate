@@ -1,6 +1,6 @@
-# Rustegrate: Device Telemetry API
+# Rustegrate: iRacing Telemetry API
 
-A Rust-based API for device telemetry ingestion and monitoring, built to demonstrate modern backend patterns and cloud architecture.
+A Rust-based API for iRacing telemetry ingestion and monitoring, built to demonstrate modern backend patterns and cloud architecture.
 
 ## Architecture
 
@@ -15,13 +15,15 @@ This project follows a clean, modular architecture with clear separation of conc
 
 ## Features
 
-- REST API for telemetry data:
-  - POST telemetry data (temperature, humidity, pressure)
-  - GET telemetry history for a device with filtering options
+- REST API for iRacing telemetry data:
+  - POST telemetry data (vehicle performance, lap times, tire temps, etc.)
+  - GET telemetry history for a driver with filtering options
+  - GET telemetry data for a specific session
+  - GET available tracks and cars
   - DELETE outdated records
 - In-memory storage using DashMap for concurrent access
 - Optional database support (SQLite/Postgres) via feature flags
-- CLI tool for simulating device telemetry
+- CLI tool for simulating iRacing telemetry
 - Structured logging with tracing
 - Configuration via environment variables and .env files
 - Docker support for containerized deployment
@@ -31,8 +33,11 @@ This project follows a clean, modular architecture with clear separation of conc
 
 - `POST /api/v1/telemetry` - Create a new telemetry record
 - `GET /api/v1/telemetry/{id}` - Get a specific telemetry record by ID
-- `GET /api/v1/devices/{device_id}/telemetry` - Get telemetry history for a device
-- `DELETE /api/v1/devices/{device_id}/telemetry` - Delete old telemetry records
+- `GET /api/v1/drivers/{driver_id}/telemetry` - Get telemetry history for a driver
+- `DELETE /api/v1/drivers/{driver_id}/telemetry` - Delete old telemetry records
+- `GET /api/v1/sessions/{session_id}/telemetry` - Get telemetry data for a session
+- `GET /api/v1/racing/tracks` - Get all available tracks
+- `GET /api/v1/racing/cars` - Get all available cars
 - `GET /api/v1/health` - Health check endpoint
 
 ## Getting Started
@@ -58,10 +63,10 @@ This project follows a clean, modular architecture with clear separation of conc
 3. Use the CLI tool to send simulated telemetry data:
    ```bash
    # Send a single data point
-   cargo run -p telemetry-cli -- send -d device-001 -t 23.5 -h 45.0 -p 1013.0
+   cargo run -p telemetry-cli -- send -d driver-001 -s session-001 -t "Daytona" -c "NASCAR Cup Series Next Gen Chevrolet Camaro ZL1" --session-type "Race" --speed 180.5 -r 7500 -g 4 -l 1 -f 95.5
    
-   # Continuously simulate telemetry (one reading every 5 seconds)
-   cargo run -p telemetry-cli -- simulate -d device-001 -i 5
+   # Continuously simulate telemetry (one reading every second)
+   cargo run -p telemetry-cli -- simulate -d driver-001 -t "Daytona" -c "NASCAR Cup Series Next Gen Chevrolet Camaro ZL1" -i 1 -l 10
    ```
 
 ### Environment Variables
@@ -72,6 +77,8 @@ Create a `.env` file in the project root with the following variables:
 HOST=127.0.0.1
 PORT=8080
 LOG_LEVEL=debug
+# For the CLI tool
+SERVER_URL=http://localhost:8080
 # Optional: DATABASE_URL=postgres://postgres:postgres@localhost:5432/telemetry
 ```
 
@@ -84,24 +91,15 @@ LOG_LEVEL=debug
 
 2. For production deployment, you can uncomment the database section in `docker-compose.yml` to use PostgreSQL.
 
-## Azure Cloud Deployment Considerations
+## Telemetry Data Model
 
-This project is designed with Azure cloud deployment in mind:
+The iRacing telemetry model includes:
 
-- **Azure Container Registry**: Store the Docker image
-- **Azure Kubernetes Service**: Deploy and scale the API
-- **Azure Database for PostgreSQL**: Persistent storage (optional)
-- **Azure Monitor**: Collect telemetry and logs
-- **Azure Key Vault**: Store secrets
-- **Azure Event Hubs**: Optional integration for event-driven architecture
-
-## Testing
-
-Run the test suite:
-
-```bash
-cargo test
-```
+- **Session Information**: Driver ID, session ID, track name, car model
+- **Vehicle Performance**: Speed, RPM, gear, throttle/brake/clutch positions
+- **Lap Information**: Current lap, lap times
+- **Vehicle Status**: Fuel level, tire temperatures
+- **Forces and Position**: G-forces, track position, 3D coordinates
 
 ## License
 

@@ -31,17 +31,33 @@ impl TelemetryService {
         Ok(id)
     }
 
-    /// Get telemetry data for a specific device
-    pub async fn get_device_telemetry(
+    /// Get telemetry data for a specific driver
+    pub async fn get_driver_telemetry(
         &self,
-        device_id: &str,
+        driver_id: &str,
         start_time: Option<DateTime<Utc>>,
         end_time: Option<DateTime<Utc>>,
+        track_name: Option<&str>,
+        car_name: Option<&str>,
+        session_type: Option<&str>,
         limit: usize,
     ) -> Result<Vec<TelemetryData>, AppError> {
         let telemetry = self
             .store
-            .get_by_device(device_id, start_time, end_time, limit)
+            .get_by_driver(driver_id, start_time, end_time, track_name, car_name, session_type, limit)
+            .await;
+        Ok(telemetry)
+    }
+    
+    /// Get telemetry data for a specific session
+    pub async fn get_session_telemetry(
+        &self,
+        session_id: &str,
+        limit: usize,
+    ) -> Result<Vec<TelemetryData>, AppError> {
+        let telemetry = self
+            .store
+            .get_by_session(session_id, limit)
             .await;
         Ok(telemetry)
     }
@@ -54,13 +70,25 @@ impl TelemetryService {
             .ok_or_else(|| AppError::NotFound(format!("Telemetry with ID {} not found", id)))
     }
 
-    /// Delete old telemetry records for a device
+    /// Delete old telemetry records for a driver
     pub async fn delete_old_records(
         &self,
-        device_id: &str,
+        driver_id: &str,
         older_than: DateTime<Utc>,
     ) -> Result<usize, AppError> {
-        let count = self.store.delete_old_records(device_id, older_than).await;
+        let count = self.store.delete_old_records(driver_id, older_than).await;
         Ok(count)
+    }
+    
+    /// Get all unique tracks
+    pub async fn get_tracks(&self) -> Result<Vec<String>, AppError> {
+        let tracks = self.store.get_tracks().await;
+        Ok(tracks)
+    }
+    
+    /// Get all unique cars
+    pub async fn get_cars(&self) -> Result<Vec<String>, AppError> {
+        let cars = self.store.get_cars().await;
+        Ok(cars)
     }
 }
